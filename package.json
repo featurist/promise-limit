@@ -1,0 +1,31 @@
+{
+  "name": "promise-limit",
+  "version": "1.0.0",
+  "description": "limits calls to functions that return promises",
+  "main": "index.js",
+  "dependencies": {},
+  "devDependencies": {
+    "chai": "3.5.0",
+    "fs-promise": "0.5.0",
+    "lowscore": "1.8.0",
+    "mocha": "2.4.5"
+  },
+  "scripts": {
+    "test": "mocha"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/featurist/promise-limit.git"
+  },
+  "keywords": [
+    "limit",
+    "promise",
+    "semaphore"
+  ],
+  "author": "Tim Macfarlane <timmacfarlane@gmail.com>",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/featurist/promise-limit/issues"
+  },
+  "homepage": "https://github.com/featurist/promise-limit#readme"
+}
