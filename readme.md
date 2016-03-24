@@ -1,4 +1,4 @@
-# Promise Limit
+# Promise Limit [![npm version](https://img.shields.io/npm/v/promise-limit.svg)](https://www.npmjs.com/package/promise-limit) [![npm](https://img.shields.io/npm/dm/promise-limit.svg)](https://www.npmjs.com/package/promise-limit)
 
 Limit outstanding calls to functions. You might want to do this to reduce load on external services, or reduce memory usage when processing large batches of jobs.
 
