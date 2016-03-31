@@ -96,4 +96,28 @@ describe('promise-limit', function () {
       expect(String(err)).to.equal('TypeError: Cannot read property \'then\' of null')
     })
   })
+
+  it('should be able to settle queued promises with rejections', function () {
+    var numbers = [1, 2, 3, 4, 5, 6]
+    return Promise.all(numbers.map((i) => {
+      return limit(() => {
+        return new Promise((resolve, reject) => {
+          if (i === 6) {
+            setTimeout(() => {
+              reject(new Error('rejected queued promise'))
+            }, 100)
+          } else {
+            setTimeout(resolve, 100)
+          }
+        })
+      })
+    })).then(
+      () => {
+        throw new Error('all promises resolved, instead of one rejecting')
+      },
+      (err) => {
+        expect(String(err)).to.equal('Error: rejected queued promise')
+      }
+    )
+  })
 })

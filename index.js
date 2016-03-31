@@ -14,13 +14,13 @@ module.exports = function (count) {
     var job = jobs.shift()
 
     if (job) {
-      run(job.fn).then(job.finished)
+      run(job.fn).then(job.resolve).catch(job.reject)
     }
   }
 
   function queue (fn) {
     return new Promise((resolve, reject) => {
-      jobs.push({fn: fn, finished: resolve})
+      jobs.push({fn: fn, resolve: resolve, reject: reject})
     })
   }
 
