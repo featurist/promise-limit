@@ -72,4 +72,28 @@ describe('promise-limit', function () {
       expect(results).to.eql(times(9, (i) => `job ${i + 1}`))
     })
   })
+
+  it('returns a rejected promise if the function throws an error', function () {
+    var promise = limit(() => {
+      throw new Error('uh oh')
+    })
+    expect(promise).to.be.a('promise')
+    return promise.then(function () {
+      throw new Error('the promise resolved, instead of rejecting')
+    }).catch(function (err) {
+      expect(String(err)).to.equal('Error: uh oh')
+    })
+  })
+
+  it('returns a rejected promise if the function does not return a promise', function () {
+    var promise = limit(() => {
+      return null
+    })
+    expect(promise).to.be.a('promise')
+    return promise.then(function () {
+      throw new Error('the promise resolved, instead of rejecting')
+    }).catch(function (err) {
+      expect(String(err)).to.equal('TypeError: Cannot read property \'then\' of null')
+    })
+  })
 })

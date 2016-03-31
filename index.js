@@ -36,9 +36,9 @@ module.exports = function (count) {
         remove()
         throw error
       })
-    } catch (e) {
+    } catch (err) {
       remove()
-      throw e
+      return Promise.reject(err)
     }
   }
 
