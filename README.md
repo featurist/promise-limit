@@ -1,50 +1,77 @@
 promise-limit [![npm version](https://img.shields.io/npm/v/promise-limit.svg)](https://www.npmjs.com/package/promise-limit) [![npm](https://img.shields.io/npm/dm/promise-limit.svg)](https://www.npmjs.com/package/promise-limit)
 ===
 
-Limit outstanding calls to functions. You might want to do this to reduce load on external services, or reduce memory usage when processing large batches of jobs.
+Limit outstanding calls to promise returning functions, or a semaphore for promises. You might want to do this to reduce load on external services, or reduce memory usage when processing large batches of jobs.
 
 ```sh
 npm install promise-limit
 ```
 
 ```js
-var promiseLimit = require('promise-limit')
-var limiter = promiseLimit(2) // create and await a maximum of 2 promises at one time
+var promiseLimit = require('.')
 
-var numbers = [1, 2, 3, 4, 5]
+function job (name) {
+  var text = `job ${name}`
+  console.log('started', text)
 
-Promise.all(numbers.map((number) => {
-  return limiter(() => {
-    return new Promise((resolve, reject) => {
-      var currentSecond = (new Date()).getSeconds()
-      console.log(`called number ${number} at second ${currentSecond}`)
-      setTimeout(() => resolve(number * 2), 5000)
-    })
+  return new Promise(function (resolve) {
+    setTimeout(() => {
+      console.log('       ', text, 'finished')
+      resolve(text)
+    }, 100)
   })
-})).then((newNumbers) => {
-  console.log('all done')
-  console.log(newNumbers)
-})
+}
 
-// Output (assuming we start at second 30):
-/*
-called number 1 at second 30
-called number 2 at second 30
-called number 3 at second 35
-called number 4 at second 35
-called number 5 at second 40
-all done
-[2, 4, 6, 8, 10]
- */
+var limit = promiseLimit(2)
+
+var jobs = ['a', 'b', 'c', 'd', 'e']
+
+return Promise.all(jobs.map((name) => {
+  return limit(() => job(name))
+})).then(results => {
+  console.log()
+  console.log('results:', results)
+})
+```
+
+will output:
+
+```
+started job a
+started job b
+        job a finished
+        job b finished
+started job c
+started job d
+        job c finished
+        job d finished
+started job e
+        job e finished
+
+results: [ 'job a', 'job b', 'job c', 'job d', 'job e' ]
 ```
 
 API
 ---
 
-`promiseLimit(concurrency) -> limiter`
+```js
+var promiseLimit = require('promise-limit')
 
-Returns a function that does the limiting.
+promiseLimit(concurrency) -> limit
+```
 
-`limiter(fn) -> Promise`
+Returns a function that can be used to wrap promise returning functions, limiting them to `concurrency` outstanding calls.
 
-Limiter function. Returns a promise that resolves or rejects when the Promise returned by the `fn` function resolves or rejects. At most `concurrency` calls to `fn` will be in progress at any point in time. When one call to `fn` has resolved or rejected, the next in queue will be executed.
+- `concurrency` the concurrency, i.e. 1 will limit calls to one at a time, effectively in sequence or serial. 2 will allow two at a time, etc. 0 or `undefined` specify no limit, and all calls will be run in parallel.
+
+```js
+function fn() {
+  ... return promise ...
+}
+
+limit(fn) -> Promise
+```
+
+A function that limits calls to `fn`, based on `concurrency` above. Returns a promise that resolves or rejects the same value or error as `fn`. All functions are executed in the same order in which they were passed to `limit`. `fn` must return a promise.
+
+* `fn` a function that is called with no arguments and returns a promise
