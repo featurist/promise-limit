@@ -57,7 +57,7 @@ API
 ```js
 var promiseLimit = require('promise-limit')
 
-promiseLimit(concurrency) -> limit
+promiseLimit(concurrency?: Number) -> limit
 ```
 
 Returns a function that can be used to wrap promise returning functions, limiting them to `concurrency` outstanding calls.
@@ -65,11 +65,7 @@ Returns a function that can be used to wrap promise returning functions, limitin
 - `concurrency` the concurrency, i.e. 1 will limit calls to one at a time, effectively in sequence or serial. 2 will allow two at a time, etc. 0 or `undefined` specify no limit, and all calls will be run in parallel.
 
 ```js
-function fn() {
-  ... return promise ...
-}
-
-limit(fn) -> Promise
+limit(fn: () => Promise<T>) => Promise<T>
 ```
 
 A function that limits calls to `fn`, based on `concurrency` above. Returns a promise that resolves or rejects the same value or error as `fn`. All functions are executed in the same order in which they were passed to `limit`. `fn` must return a promise.
