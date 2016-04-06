@@ -8,7 +8,18 @@ npm install promise-limit
 ```
 
 ```js
-var promiseLimit = require('.')
+var promiseLimit = require('promise-limit')
+
+var limit = promiseLimit(2)
+
+var jobs = ['a', 'b', 'c', 'd', 'e']
+
+Promise.all(jobs.map((name) => {
+  return limit(() => job(name))
+})).then(results => {
+  console.log()
+  console.log('results:', results)
+})
 
 function job (name) {
   var text = `job ${name}`
@@ -21,17 +32,6 @@ function job (name) {
     }, 100)
   })
 }
-
-var limit = promiseLimit(2)
-
-var jobs = ['a', 'b', 'c', 'd', 'e']
-
-return Promise.all(jobs.map((name) => {
-  return limit(() => job(name))
-})).then(results => {
-  console.log()
-  console.log('results:', results)
-})
 ```
 
 will output:
@@ -74,4 +74,4 @@ limit(fn) -> Promise
 
 A function that limits calls to `fn`, based on `concurrency` above. Returns a promise that resolves or rejects the same value or error as `fn`. All functions are executed in the same order in which they were passed to `limit`. `fn` must return a promise.
 
-* `fn` a function that is called with no arguments and returns a promise
+* `fn` a function that is called with no arguments and returns a promise. You can pass arguments to your function by putting it inside another function, i.e. `() => myfunc(a, b, c)`.
