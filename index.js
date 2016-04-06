@@ -1,8 +1,8 @@
 module.exports = function (count) {
   if (!count) {
     return function (fn) {
-      return fn();
-    };
+      return fn()
+    }
   }
   var outstanding = 0
   var jobs = []
@@ -35,7 +35,7 @@ module.exports = function (count) {
       var result = fn()
 
       if (!result || typeof result.then !== 'function') {
-        throw new Error('expected function to return a promise');
+        throw new Error('expected function to return a promise')
       }
 
       return result.then(function (result) {

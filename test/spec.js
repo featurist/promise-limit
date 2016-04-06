@@ -104,7 +104,7 @@ describe('promise-limit', function () {
     return promise.then(function () {
       throw new Error('the promise resolved, instead of rejecting')
     }).catch(function (err) {
-      expect(String(err)).to.equal("Error: expected function to return a promise")
+      expect(String(err)).to.equal('Error: expected function to return a promise')
     })
   })
 
@@ -115,7 +115,7 @@ describe('promise-limit', function () {
 
     function rejectOdd (n) {
       return new Promise((resolve, reject) => {
-        if (n % 2 == 0) {
+        if (n % 2 === 0) {
           resolve(n + ' is even')
         } else {
           reject(new Error(n + ' is odd'))
@@ -133,12 +133,12 @@ describe('promise-limit', function () {
         'pass: 4 is even',
         'fail: 5 is odd',
         'pass: 6 is even'
-      ]);
+      ])
     })
   })
 
   it("doesn't limit if the limit is 0", function () {
-    var limit = limiter(0);
+    var limit = limiter(0)
 
     return Promise.all(times(9, (i) => {
       return limit(() => wait(`job ${i + 1}`, 100))
@@ -148,7 +148,7 @@ describe('promise-limit', function () {
   })
 
   it("doesn't limit if the limit is undefined", function () {
-    var limit = limiter();
+    var limit = limiter()
 
     return Promise.all(times(9, (i) => {
       return limit(() => wait(`job ${i + 1}`, 100))
