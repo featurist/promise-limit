@@ -1,4 +1,10 @@
-module.exports = function (count) {
+module.exports = function (count, options) {
+  if (typeof options !== 'object') {
+    options = {
+      abortOnError: false
+    }
+  }
+
   if (!count) {
     return function (fn) {
       return fn()
@@ -7,8 +13,19 @@ module.exports = function (count) {
   var outstanding = 0
   var jobs = []
 
-  function remove () {
+  function purgeRemainingJobs (err) {
+    while (true) {
+      if (!jobs.length) break
+      jobs.shift().reject(err)
+    }
+  }
+
+  function remove (err) {
     outstanding--
+
+    if (err && options.abortOnError) {
+      return purgeRemainingJobs(err)
+    }
 
     if (outstanding < count) {
       dequeue()
@@ -42,11 +59,11 @@ module.exports = function (count) {
         remove()
         return result
       }, function (error) {
-        remove()
+        remove(error)
         throw error
       })
     } catch (err) {
-      remove()
+      remove(err)
       return Promise.reject(err)
     }
   }

@@ -156,4 +156,44 @@ describe('promise-limit', function () {
       expectMaxOutstanding(9)
     })
   })
+
+  describe('abortOnError', function () {
+    it("should abort all remaining jobs with the failed job's error message", function () {
+      var limit = limiter(2, {
+        abortOnError: true
+      })
+
+      var numbers = [0, 1, 2, 3]
+
+      return new Promise((resolve, reject) => {
+        function runner (num) {
+          if (num > 2) return reject(new Error('Runner was called on an unexpected number'))
+          if (num === 0) return Promise.resolve(num)
+          else return Promise.reject(new Error('number is 1'))
+        }
+
+        var promises = numbers.map((number) => {
+          return limit(() => runner(number))
+        })
+
+        var numberCounter = 0
+        function processPromises () {
+          if (!promises.length) return resolve()
+          var promise = promises.shift()
+          var shouldBeNumber = numberCounter++
+          promise.then((number) => {
+            if (number !== shouldBeNumber) return reject(new Error('Promises did not execute in order'))
+            if (number > 1) return reject(new Error('Number that should have rejected did not reject'))
+            processPromises()
+          }).catch((err) => {
+            if (shouldBeNumber === 0) return reject(new Error('A number that should not have rejected has rejected'))
+            if (String(err) !== 'Error: number is 1') return reject(new Error('Got unexpected error message: ' + err))
+            processPromises()
+          })
+        }
+
+        processPromises()
+      })
+    })
+  })
 })

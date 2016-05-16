@@ -57,12 +57,15 @@ API
 ```js
 var promiseLimit = require('promise-limit')
 
-promiseLimit(concurrency?: Number) -> limit
+promiseLimit(concurrency?: Number, options?: Object) -> limit
 ```
 
 Returns a function that can be used to wrap promise returning functions, limiting them to `concurrency` outstanding calls.
 
 - `concurrency` the concurrency, i.e. 1 will limit calls to one at a time, effectively in sequence or serial. 2 will allow two at a time, etc. 0 or `undefined` specify no limit, and all calls will be run in parallel.
+
+- `options` are the options for the limiter, which are:
+  + `abortOnError`: (default `false`) Whether to dequeue and reject all remaining jobs in the queue with the caught error if a job rejects
 
 ```js
 limit(fn: () => Promise<T>) => Promise<T>
