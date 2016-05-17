@@ -156,4 +156,27 @@ describe('promise-limit', function () {
       expectMaxOutstanding(9)
     })
   })
+
+  describe('queue length', function () {
+    it('updates the queue length when there are more jobs than there is concurrency', function () {
+      var limit = limiter(2)
+
+      var one = limit(() => wait('one', 10))
+      expect(limit.queue).to.equal(0)
+      var two = limit(() => wait('two', 20))
+      expect(limit.queue).to.equal(0)
+      limit(() => wait('three', 100))
+      expect(limit.queue).to.equal(1)
+      limit(() => wait('four', 100))
+      expect(limit.queue).to.equal(2)
+
+      return one.then(() => {
+        expect(limit.queue).to.equal(1)
+
+        return two.then(() => {
+          expect(limit.queue).to.equal(0)
+        })
+      })
+    })
+  })
 })

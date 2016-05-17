@@ -71,3 +71,9 @@ limit(fn: () => Promise<T>) => Promise<T>
 A function that limits calls to `fn`, based on `concurrency` above. Returns a promise that resolves or rejects the same value or error as `fn`. All functions are executed in the same order in which they were passed to `limit`. `fn` must return a promise.
 
 * `fn` a function that is called with no arguments and returns a promise. You can pass arguments to your function by putting it inside another function, i.e. `() => myfunc(a, b, c)`.
+
+```js
+limit.queue: Number
+```
+
+Returns the queue length, the number of jobs that are waiting to be started. You could use this to throttle incoming jobs, so the queue doesn't overwhealm the available memory - for e.g. `pause()` a stream.

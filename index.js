@@ -17,6 +17,7 @@ module.exports = function (count) {
 
   function dequeue () {
     var job = jobs.shift()
+    semaphore.queue = jobs.length
 
     if (job) {
       run(job.fn).then(job.resolve).catch(job.reject)
@@ -26,6 +27,7 @@ module.exports = function (count) {
   function queue (fn) {
     return new Promise((resolve, reject) => {
       jobs.push({fn: fn, resolve: resolve, reject: reject})
+      semaphore.queue = jobs.length
     })
   }
 
@@ -58,6 +60,8 @@ module.exports = function (count) {
       return run(fn)
     }
   }
+
+  semaphore.queue = 0
 
   return semaphore
 }
