@@ -63,5 +63,24 @@ module.exports = function (count) {
 
   semaphore.queue = 0
 
+  semaphore.map = map
+
   return semaphore
+}
+
+function map (items, mapper) {
+  var failed = false
+
+  var limit = this
+
+  return Promise.all(items.map(function () {
+    return limit(() => {
+      if (!failed) {
+        return mapper.apply(undefined, arguments).catch(function (e) {
+          failed = true
+          throw e
+        })
+      }
+    })
+  }))
 }
