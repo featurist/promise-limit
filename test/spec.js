@@ -2,7 +2,9 @@
 
 var times = require('lowscore/times')
 var limiter = require('..')
-var expect = require('chai').expect
+var chai = require('chai')
+var expect = chai.expect
+chai.use(require('chai-as-promised'))
 var max = require('./max')
 
 describe('promise-limit', function () {
@@ -154,6 +156,51 @@ describe('promise-limit', function () {
       return limit(() => wait(`job ${i + 1}`, 100))
     })).then(() => {
       expectMaxOutstanding(9)
+    })
+  })
+
+  describe('map', function () {
+    function failsAt1 (num) {
+      if (num === 1) return Promise.reject(new Error(`rejecting number ${num}`))
+      else return Promise.resolve(`accepting number ${num}`)
+    }
+
+    function resolvesAll (num) {
+      return Promise.resolve(`accepting number ${num}`)
+    }
+
+    it('returns all results when all are resolved', function () {
+      var limit = limiter(2)
+
+      return limit.map([0, 1, 2, 3], resolvesAll).then((results) => {
+        expect(results).to.eql([
+          'accepting number 0',
+          'accepting number 1',
+          'accepting number 2',
+          'accepting number 3'
+        ])
+      })
+    })
+
+    it('returns first failure when one fails', function () {
+      var limit = limiter(2)
+
+      return expect(limit.map([0, 1, 2, 3], failsAt1)).to.be.rejectedWith('rejecting number 1')
+    })
+
+    it('limiter can still be used after map with failure', function () {
+      var limit = limiter(2)
+
+      return expect(limit.map([0, 1, 2, 3], failsAt1)).to.be.rejectedWith('rejecting number 1').then(() => {
+        return limit.map([0, 1, 2, 3], resolvesAll).then((results) => {
+          expect(results).to.eql([
+            'accepting number 0',
+            'accepting number 1',
+            'accepting number 2',
+            'accepting number 3'
+          ])
+        })
+      })
     })
   })
 
