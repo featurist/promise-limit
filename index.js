@@ -34,13 +34,7 @@ module.exports = function (count) {
   function run (fn) {
     outstanding++
     try {
-      var result = fn()
-
-      if (!result || typeof result.then !== 'function') {
-        throw new Error('expected function to return a promise')
-      }
-
-      return result.then(function (result) {
+      return Promise.resolve(fn()).then(function (result) {
         remove()
         return result
       }, function (error) {
