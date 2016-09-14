@@ -1,6 +1,7 @@
-/* global describe, beforeEach, it */
+/* global describe, xdescribe, beforeEach, it, context */
 
 var times = require('lowscore/times')
+var range = require('lowscore/range')
 var limiter = require('..')
 var chai = require('chai')
 var expect = chai.expect
@@ -96,20 +97,6 @@ describe('promise-limit', function () {
     })
   })
 
-  it('returns a rejected promise if the function does not return a promise', function () {
-    var limit = limiter(5)
-
-    var promise = limit(() => {
-      return null
-    })
-    expect(promise).to.be.a('promise')
-    return promise.then(function () {
-      throw new Error('the promise resolved, instead of rejecting')
-    }).catch(function (err) {
-      expect(String(err)).to.equal('Error: expected function to return a promise')
-    })
-  })
-
   it('should fulfil or reject when the function fulfils or rejects', function () {
     var limit = limiter(3)
 
@@ -200,6 +187,32 @@ describe('promise-limit', function () {
             'accepting number 3'
           ])
         })
+      })
+    })
+  })
+
+  xdescribe('large numbers of tasks failing', function () {
+    context('when error thrown', function () {
+      function alwaysFails (n) {
+        throw new Error('argh: ' + n)
+      }
+
+      it("doesn't exceed stack size", function () {
+        var limit = limiter(2)
+
+        return expect(limit.map(range(0, 1000), alwaysFails)).to.be.rejectedWith('argh: 0')
+      })
+    })
+
+    context('when error rejected', function () {
+      function alwaysFails (n) {
+        return Promise.reject(new Error('argh: ' + n))
+      }
+
+      it("doesn't exceed stack size", function () {
+        var limit = limiter(2)
+
+        return expect(limit.map(range(0, 1000), alwaysFails)).to.be.rejectedWith('argh: 0')
       })
     })
   })
