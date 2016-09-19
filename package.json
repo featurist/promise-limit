@@ -1,6 +1,6 @@
 {
   "name": "promise-limit",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "limits calls to functions that return promises",
   "main": "index.js",
   "dependencies": {},
