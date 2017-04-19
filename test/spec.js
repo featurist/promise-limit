@@ -1,4 +1,4 @@
-/* global describe, xdescribe, beforeEach, it, context */
+/* eslint-env mocha */
 
 var times = require('lowscore/times')
 var range = require('lowscore/range')
@@ -98,7 +98,7 @@ describe('promise-limit', function () {
   })
 
   it('should fulfil or reject when the function fulfils or rejects', function () {
-    var limit = limiter(3)
+    var limit = limiter(2)
 
     var numbers = [1, 2, 3, 4, 5, 6]
 
@@ -126,23 +126,35 @@ describe('promise-limit', function () {
     })
   })
 
-  it("doesn't limit if the limit is 0", function () {
-    var limit = limiter(0)
+  describe('no limit', function () {
+    function expectNoLimit (limit) {
+      return Promise.all(times(9, (i) => {
+        return limit(() => wait(`job ${i + 1}`, 100))
+      })).then(() => {
+        expectMaxOutstanding(9)
+      }).then(() => {
+        return expectNoMapLimit(limit)
+      })
+    }
 
-    return Promise.all(times(9, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then(() => {
-      expectMaxOutstanding(9)
+    function expectNoMapLimit (limit) {
+      return limit.map(range(0, 9), (i) => {
+        return wait(`job ${i + 1}`, 100)
+      }).then(() => {
+        expectMaxOutstanding(9)
+      })
+    }
+
+    it("doesn't limit if the limit is 0", function () {
+      var limit = limiter(0)
+
+      return expectNoLimit(limit)
     })
-  })
 
-  it("doesn't limit if the limit is undefined", function () {
-    var limit = limiter()
+    it("doesn't limit if the limit is undefined", function () {
+      var limit = limiter()
 
-    return Promise.all(times(9, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then(() => {
-      expectMaxOutstanding(9)
+      return expectNoLimit(limit)
     })
   })
 
@@ -191,7 +203,7 @@ describe('promise-limit', function () {
     })
   })
 
-  xdescribe('large numbers of tasks failing', function () {
+  describe('large numbers of tasks failing', function () {
     context('when error thrown', function () {
       function alwaysFails (n) {
         throw new Error('argh: ' + n)

@@ -1,9 +1,4 @@
-module.exports = function (count) {
-  if (!count) {
-    return function (fn) {
-      return fn()
-    }
-  }
+function limiter (count) {
   var outstanding = 0
   var jobs = []
 
@@ -55,10 +50,6 @@ module.exports = function (count) {
     }
   }
 
-  semaphore.queue = 0
-
-  semaphore.map = map
-
   return semaphore
 }
 
@@ -77,4 +68,20 @@ function map (items, mapper) {
       }
     })
   }))
+}
+
+function addExtras (fn) {
+  fn.queue = 0
+  fn.map = map
+  return fn
+}
+
+module.exports = function (count) {
+  if (count) {
+    return addExtras(limiter(count))
+  } else {
+    return addExtras(function (fn) {
+      return fn()
+    })
+  }
 }

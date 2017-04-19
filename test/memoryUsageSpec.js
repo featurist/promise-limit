@@ -1,4 +1,4 @@
-/* global describe, beforeEach, it */
+/* eslint-env mocha */
 
 var times = require('lowscore/times')
 var limiter = require('..')
@@ -41,7 +41,7 @@ describe('promise-limit memory usage', function () {
       }))
     })).then(function () {
       var maxMemoryUsage = max(memoryProfile)
-      expect(maxMemoryUsage).to.be.lessThan(500 * 1024 * 1024)
+      expect(maxMemoryUsage).to.be.lessThan(2000 * 1024 * 1024)
     })
   })
 })

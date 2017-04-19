@@ -10,7 +10,7 @@
     "fs-promise": "0.5.0",
     "lowscore": "1.8.0",
     "mocha": "2.4.5",
-    "standard": "^6.0.8"
+    "standard": "10.0.2"
   },
   "scripts": {
     "test": "standard && mocha"
