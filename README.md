@@ -1,4 +1,4 @@
-promise-limit [![npm version](https://img.shields.io/npm/v/promise-limit.svg)](https://www.npmjs.com/package/promise-limit) [![npm](https://img.shields.io/npm/dm/promise-limit.svg)](https://www.npmjs.com/package/promise-limit)
+promise-limit  [![npm version](https://img.shields.io/npm/v/promise-limit.svg)](https://www.npmjs.com/package/promise-limit) [![npm](https://img.shields.io/npm/dm/promise-limit.svg)](https://www.npmjs.com/package/promise-limit) [![Build Status](https://travis-ci.org/featurist/promise-limit.svg?branch=master)](https://travis-ci.org/featurist/promise-limit)
 ===
 
 Limit outstanding calls to promise returning functions, or a semaphore for promises. You might want to do this to reduce load on external services, or reduce memory usage when processing large batches of jobs.
