@@ -29,7 +29,7 @@ describe('promise-limit', function () {
   function expectMaxOutstanding (n) {
     var outstanding = 0
 
-    var outstandingOverTime = output.map((line) => {
+    var outstandingOverTime = output.map(function (line) {
       if (line.match(/starting/)) {
         outstanding++
       } else if (line.match(/finished/)) {
@@ -46,9 +46,11 @@ describe('promise-limit', function () {
   it('limits the number of outstanding calls to a function', function () {
     var limit = limiter(5)
 
-    return Promise.all(times(9, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then(() => {
+    return Promise.all(times(9, function (i) {
+      return limit(function () {
+        return wait('job ' + (i + 1), 100)
+      })
+    })).then(function () {
       expectMaxOutstanding(5)
     })
   })
@@ -56,9 +58,11 @@ describe('promise-limit', function () {
   it("doesn't limit if the number outstanding is the limit", function () {
     var limit = limiter(5)
 
-    return Promise.all(times(5, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then(() => {
+    return Promise.all(times(5, function (i) {
+      return limit(function () {
+        return wait('job ' + (i + 1), 100)
+      })
+    })).then(function () {
       expectMaxOutstanding(5)
     })
   })
@@ -66,9 +70,11 @@ describe('promise-limit', function () {
   it("doesn't limit if the number outstanding less than the limit", function () {
     var limit = limiter(5)
 
-    return Promise.all(times(4, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then(() => {
+    return Promise.all(times(4, function (i) {
+      return limit(function () {
+        return wait('job ' + (i + 1), 100)
+      })
+    })).then(function () {
       expectMaxOutstanding(4)
     })
   })
@@ -76,17 +82,21 @@ describe('promise-limit', function () {
   it('returns the results from each job', function () {
     var limit = limiter(5)
 
-    return Promise.all(times(9, (i) => {
-      return limit(() => wait(`job ${i + 1}`, 100))
-    })).then((results) => {
-      expect(results).to.eql(times(9, (i) => `job ${i + 1}`))
+    return Promise.all(times(9, function (i) {
+      return limit(function () {
+        return wait('job ' + (i + 1), 100)
+      })
+    })).then(function (results) {
+      expect(results).to.eql(times(9, function (i) {
+        return 'job ' + (i + 1)
+      }))
     })
   })
 
   it('returns a rejected promise if the function throws an error', function () {
     var limit = limiter(5)
 
-    var promise = limit(() => {
+    var promise = limit(function () {
       throw new Error('uh oh')
     })
     expect(promise).to.be.a('promise')
@@ -103,7 +113,7 @@ describe('promise-limit', function () {
     var numbers = [1, 2, 3, 4, 5, 6]
 
     function rejectOdd (n) {
-      return new Promise((resolve, reject) => {
+      return new Promise(function (resolve, reject) {
         if (n % 2 === 0) {
           resolve(n + ' is even')
         } else {
@@ -112,9 +122,15 @@ describe('promise-limit', function () {
       })
     }
 
-    return Promise.all(numbers.map((i) => {
-      return limit(() => rejectOdd(i)).then((r) => 'pass: ' + r, (e) => 'fail: ' + e.message)
-    })).then((results) => {
+    return Promise.all(numbers.map(function (i) {
+      return limit(function () {
+        return rejectOdd(i)
+      }).then(function (r) {
+        return 'pass: ' + r
+      }, function (e) {
+        return 'fail: ' + e.message
+      })
+    })).then(function (results) {
       expect(results).to.eql([
         'fail: 1 is odd',
         'pass: 2 is even',
@@ -128,19 +144,19 @@ describe('promise-limit', function () {
 
   describe('no limit', function () {
     function expectNoLimit (limit) {
-      return Promise.all(times(9, (i) => {
-        return limit(() => wait(`job ${i + 1}`, 100))
-      })).then(() => {
+      return Promise.all(times(9, function (i) {
+        return limit(function () { return wait('job ' + (i + 1), 100) })
+      })).then(function () {
         expectMaxOutstanding(9)
-      }).then(() => {
+      }).then(function () {
         return expectNoMapLimit(limit)
       })
     }
 
     function expectNoMapLimit (limit) {
-      return limit.map(range(0, 9), (i) => {
-        return wait(`job ${i + 1}`, 100)
-      }).then(() => {
+      return limit.map(range(0, 9), function (i) {
+        return wait('job ' + (i + 1), 100)
+      }).then(function () {
         expectMaxOutstanding(9)
       })
     }
@@ -160,18 +176,18 @@ describe('promise-limit', function () {
 
   describe('map', function () {
     function failsAt1 (num) {
-      if (num === 1) return Promise.reject(new Error(`rejecting number ${num}`))
-      else return Promise.resolve(`accepting number ${num}`)
+      if (num === 1) return Promise.reject(new Error('rejecting number ' + num))
+      else return Promise.resolve('accepting number ' + num)
     }
 
     function resolvesAll (num) {
-      return Promise.resolve(`accepting number ${num}`)
+      return Promise.resolve('accepting number ' + num)
     }
 
     it('returns all results when all are resolved', function () {
       var limit = limiter(2)
 
-      return limit.map([0, 1, 2, 3], resolvesAll).then((results) => {
+      return limit.map([0, 1, 2, 3], resolvesAll).then(function (results) {
         expect(results).to.eql([
           'accepting number 0',
           'accepting number 1',
@@ -190,8 +206,8 @@ describe('promise-limit', function () {
     it('limiter can still be used after map with failure', function () {
       var limit = limiter(2)
 
-      return expect(limit.map([0, 1, 2, 3], failsAt1)).to.be.rejectedWith('rejecting number 1').then(() => {
-        return limit.map([0, 1, 2, 3], resolvesAll).then((results) => {
+      return expect(limit.map([0, 1, 2, 3], failsAt1)).to.be.rejectedWith('rejecting number 1').then(function () {
+        return limit.map([0, 1, 2, 3], resolvesAll).then(function (results) {
           expect(results).to.eql([
             'accepting number 0',
             'accepting number 1',
@@ -233,19 +249,19 @@ describe('promise-limit', function () {
     it('updates the queue length when there are more jobs than there is concurrency', function () {
       var limit = limiter(2)
 
-      var one = limit(() => wait('one', 10))
+      var one = limit(function () { return wait('one', 10) })
       expect(limit.queue).to.equal(0)
-      var two = limit(() => wait('two', 20))
+      var two = limit(function () { return wait('two', 20) })
       expect(limit.queue).to.equal(0)
-      limit(() => wait('three', 100))
+      limit(function () { return wait('three', 100) })
       expect(limit.queue).to.equal(1)
-      limit(() => wait('four', 100))
+      limit(function () { return wait('four', 100) })
       expect(limit.queue).to.equal(2)
 
-      return one.then(() => {
+      return one.then(function () {
         expect(limit.queue).to.equal(1)
 
-        return two.then(() => {
+        return two.then(function () {
           expect(limit.queue).to.equal(0)
         })
       })

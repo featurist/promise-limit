@@ -36,9 +36,10 @@ describe('promise-limit memory usage', function () {
     this.timeout(10000)
 
     var limit = limiter(5)
-    return Promise.all(times(1000, (i) => {
-      return limit(() => load(i).then(() => {
-      }))
+    return Promise.all(times(1000, function (i) {
+      return limit(function () {
+        return load(i).then(function () {})
+      })
     })).then(function () {
       var maxMemoryUsage = max(memoryProfile)
       expect(maxMemoryUsage).to.be.lessThan(2000 * 1024 * 1024)

@@ -20,7 +20,7 @@ function limiter (count) {
   }
 
   function queue (fn) {
-    return new Promise((resolve, reject) => {
+    return new Promise(function (resolve, reject) {
       jobs.push({fn: fn, resolve: resolve, reject: reject})
       semaphore.queue = jobs.length
     })
@@ -59,9 +59,10 @@ function map (items, mapper) {
   var limit = this
 
   return Promise.all(items.map(function () {
-    return limit(() => {
+    var args = arguments
+    return limit(function () {
       if (!failed) {
-        return mapper.apply(undefined, arguments).catch(function (e) {
+        return mapper.apply(undefined, args).catch(function (e) {
           failed = true
           throw e
         })
