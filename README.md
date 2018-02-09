@@ -92,3 +92,6 @@ limit.queue: Number
 ```
 
 Returns the queue length, the number of jobs that are waiting to be started. You could use this to throttle incoming jobs, so the queue doesn't overwhealm the available memory - for e.g. `pause()` a stream.
+
+## We're Hiring!
+Featurist provides full stack, feature driven development teams. Want to join us? Check out [our career opportunities](https://www.featurist.co.uk/careers/).
