@@ -33,7 +33,7 @@ describe('promise-limit memory usage', function () {
   }
 
   it("doesn't use too much memory", function () {
-    this.timeout(10000)
+    this.timeout(20000)
 
     var limit = limiter(5)
     return Promise.all(times(1000, function (i) {
