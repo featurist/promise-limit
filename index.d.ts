@@ -22,7 +22,7 @@ declare interface limitInterface<T> {
    * @param items any items
    * @param mapper iterator
    */
-  map(items: [T], mapper: (T) => Promise<T>): Promise<[T]>
+  map<U>(items: ReadonlyArray<T>, mapper: (value: T) => Promise<U>): Promise<U[]>
 
   /**
    * Returns the queue length, the number of jobs that are waiting to be started.
